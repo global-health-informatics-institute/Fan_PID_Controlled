@@ -10,6 +10,8 @@ const int MeasureTemp = 0xE3;
 int X0,X1,temp;
 double X,X_out;
 
+Add variables here for FAN PID control
+
 void setup() {
   Serial.begin(9600);
 //  lcd.init();                      // initialize the lcd 
