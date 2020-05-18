@@ -1,8 +1,8 @@
 #include <Wire.h>
 
 //Inputs and outputs
-int firing_pin = 35; // THIS IS FOR THE FAN TRIAC AS PER PCB LAYOUT
-int zero_cross = 33; // THIS IS FOR THE ZERO CROSSING DETECTION AS PER PCB LAYOUT
+int firing_pin = 33; // THIS IS FOR THE FAN TRIAC AS PER PCB LAYOUT
+int zero_cross = 25; // THIS IS FOR THE ZERO CROSSING DETECTION AS PER PCB LAYOUT
 
 const int ADDR = 0x40;
 const int MeasureTemp = 0xE3;
@@ -85,16 +85,16 @@ int GetUpdatedFiringDelay() {
            if (ticks < warm_up_ticks + 960)     
              return 4350;
            else 
-             if (ticks < warm_up_ticks + 960)     
+             if (ticks < warm_up_ticks + 1200)     
                return 5000;
              else
-               if (ticks < warm_up_ticks + 1200)   
+               if (ticks < warm_up_ticks + 1440)   
                  return 5650;
                else
-                 if (ticks < warm_up_ticks + 1440)
+                 if (ticks < warm_up_ticks + 1680)
                    return 6320;
                  else
-                   if (ticks < warm_up_ticks + 1680)
+                   if (ticks < warm_up_ticks + 1920)
                      return 7056;
                    else
                      return 7972;
