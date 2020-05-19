@@ -2,7 +2,7 @@
 
 /*
  * The logic here is as follows ...
- * The 5 sensor readings tell us that the temperature at the outside of the oven is always warmer and the temp at the center.
+ * The 5 sensor readings tell us that the temperature at the outside of the oven is always warmer then the temp at the center.
  * We believe this is true because the fan is pushing all the warm air to the outside when running at full speed.
  * If we slow down the fan we believe that we will even out the temperature.
  * The PID will adjust the firing delay on the fan so that the error between the two temps will be zero.
@@ -26,19 +26,19 @@ int temp_read_Delay = 500;
 float real_temperature = 0;
 int FAN_firing_delay = 0;  // Initialize this to ZERO and we will adjust for different to see how the speed of the fan varies
 
-//PID variables
+//FAN PID variables
 float FAN_PID_error = 0;
 float FAN_previous_error = 0;
 float elapsedTime, Time, timePrev;
 int FAN_PID_value = 0;
 int FAN_maximum_firing_delay = 7000; //TESTING THIS VALUE
 
-//PID constants
-int FAN_kp = 1000;   int FAN_ki = 0;     int FAN_kd = 0;
+//FAN PID constants
+int FAN_kp = 500;   int FAN_ki = 1;     int FAN_kd = 1000;
 int FAN_PID_p = 0;   int FAN_PID_i = 0;  int FAN_PID_d = 0;
 
-//Temp values
-double Outer_Temp, Inner_Temp;
+//OVEN Temp values
+double Outer_Temp, Inner_Temp;  // These hold the values of the two temp sensors we will use for PID control.
 
 //Zero Crossing Interrupt Function
 void IRAM_ATTR zero_crossing()
