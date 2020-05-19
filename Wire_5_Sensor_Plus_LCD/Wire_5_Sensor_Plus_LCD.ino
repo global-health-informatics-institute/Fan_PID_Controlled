@@ -1,8 +1,8 @@
 #include <Wire.h>
 
 //Inputs and outputs
-int firing_pin = 35; // THIS IS FOR THE FAN TRIAC AS PER PCB LAYOUT
-int zero_cross = 33; // THIS IS FOR THE ZERO CROSSING DETECTION AS PER PCB LAYOUT
+int firing_pin = 33; // THIS IS FOR THE FAN TRIAC AS PER PCB LAYOUT
+int zero_cross = 25; // THIS IS FOR THE ZERO CROSSING DETECTION AS PER PCB LAYOUT
 
 const int ADDR = 0x40;
 const int MeasureTemp = 0xE3;
@@ -20,6 +20,7 @@ int setpoint = 75;
 int firing_delay = 0;  // Initialize this to ZERO and we will adjust for different to see how the speed of the fan varies
 int ticks = 0;  // this keeps the number of half-second ticks since the program started
 int warm_up_ticks = 240;  // this is a TWO MINUTE delay before we start reducing the fan speed by 10% every 2 mins
+int counter_zero_cross =0; // value tracks when zero crossing was detected 
 
 //PID variables
 float PID_error = 0;
@@ -42,6 +43,7 @@ void IRAM_ATTR zero_crossing()
     zero_cross_detected = true;    //We have detected a state change!  We need both falling and rising edges.
     last_CH1_state = 0;            //Store the current state into the last state for the next loop
   }
+  counter_zero_cross += 1;
 }
 
 void setup() {
@@ -85,16 +87,16 @@ int GetUpdatedFiringDelay() {
            if (ticks < warm_up_ticks + 960)     
              return 4350;
            else 
-             if (ticks < warm_up_ticks + 960)     
+             if (ticks < warm_up_ticks + 1200)     
                return 5000;
              else
-               if (ticks < warm_up_ticks + 1200)   
+               if (ticks < warm_up_ticks + 1440)   
                  return 5650;
                else
-                 if (ticks < warm_up_ticks + 1440)
+                 if (ticks < warm_up_ticks + 1680)
                    return 6320;
                  else
-                   if (ticks < warm_up_ticks + 1680)
+                   if (ticks < warm_up_ticks + 1920)
                      return 7056;
                    else
                      return 7972;
@@ -113,13 +115,13 @@ void loop()
     
     // Print the firing delay and the temps of the five locations so we can graph them
     Serial.print("," + String(firing_delay)); 
+    Serial.print("," + String(counter_zero_cross)); 
     Serial.print("," + String(GetTemp(16, 18))); // Hinge Left
     Serial.print("," + String(GetTemp(17, 19))); // Front Left
     Serial.print("," + String(GetTemp(15, 4))); // Front Right
     Serial.print("," + String(GetTemp(14, 25))); // Hinge Right
     Serial.print("," + String(GetTemp(27, 33))); // Center
     Serial.println();
-
     previousMillis += temp_read_Delay;              //Increase the previous time for next loop
   }
 
