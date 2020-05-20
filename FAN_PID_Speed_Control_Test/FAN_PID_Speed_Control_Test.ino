@@ -1,4 +1,5 @@
 #include <Wire.h>
+extern TwoWire Wire1; //// THIS IS NEW
 
 /*
  * The logic here is as follows ...
@@ -16,6 +17,8 @@ const int ADDR = 0x40;
 const int MeasureTemp = 0xE3;
 int X0, X1, temp;
 double X, X_out;
+
+bool TempRequestSent = false; ?? THIS IS NEW
 
 int last_CH1_state = 0;
 bool zero_cross_detected = false;
@@ -57,46 +60,62 @@ void setup() {
   Serial.begin(9600);
   pinMode (FAN_firing_pin, OUTPUT);
   pinMode (zero_cross, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(zero_cross), zero_crossing, RISING);
-}
-
-double GetTemp(int SDA_Pin, int SLC_pin) {
-  Wire.begin(SDA_Pin, SLC_pin, 5000);
-  Wire.beginTransmission(ADDR);
-  Wire.write(MeasureTemp);
-  Wire.endTransmission();
-  Wire.requestFrom(ADDR, 2);
-  if (Wire.available() <= 2); {
-    X0 = Wire.read();
-    X1 = Wire.read();
-    X0 = X0 << 8;
-    X_out = X0 + X1;
-  }
-  /**Calculate temperature**/
-  X = (175.72 * X_out) / 65536;
-  X = X - 46.85;
-  return X;
+  attachInterrupt(digitalPinToInterrupt(zero_cross), zero_crossing, CHANGE);
+  Wire.begin(16, 18, 50000);  //Inner sensor
+  Wire1.begin(17, 19, 50000);  //Outer sensor
 }
 
 void loop()
 {
   currentMillis = millis();           //Save the value of time before the loop
+
+  // SEND RESUEST TO Si7021 SENSORS 10 milliceconds BEFORE we want to read them
+  if (((currentMillis - previousMillis) >= (temp_read_Delay -10)) and !TempRequestSent) {
+     Wire.beginTransmission(ADDR);
+     Wire.write(MeasureTemp);
+     Wire.endTransmission();
+     Wire1.beginTransmission(ADDR);
+     Wire1.write(MeasureTemp);
+     Wire1.endTransmission();
+     TempRequestSent = true;
+  }
+  
   // We create this if so we will read the temperature and change values each "temp_read_Delay"
   if (currentMillis - previousMillis >= temp_read_Delay) {
     //Update the firing delay value
         previousMillis += temp_read_Delay;              //Increase the previous time for next loop
 
-// Start new FAN PIC code
+    // Start new FAN PIC code
 
-    Inner_Temp = GetTemp(16, 18);
-    Outer_Temp = GetTemp(17, 19);
+    Wire.requestFrom(ADDR, 2);
+    if (Wire.available() <= 2); {
+      X0 = Wire.read();
+      X1 = Wire.read();
+      X0 = X0 << 8;
+      X_out = X0 + X1;
+    }
+    /**Calculate temperature**/
+    X = (175.72 * X_out) / 65536;
+    Inner_Temp = X - 46.85;
+
+    Wire1.requestFrom(ADDR, 2);
+    if (Wire1.available() <= 2); {
+      X0 = Wire1.read();
+      X1 = Wire1.read();
+      X0 = X0 << 8;
+      X_out = X0 + X1;
+    }
+    /**Calculate temperature**/
+    X = (175.72 * X_out) / 65536;
+    Outer_Temp = X - 46.85;
+
     FAN_PID_error = Outer_Temp - Inner_Temp;        //Calculate the pid ERROR as the difference between ths center and edge of oven
 
     // Print the firing delay and the temps of the five locations so we can graph them
-    Serial.print(", " + String(FAN_PID_value)); 
-    Serial.print(", " + String(FAN_PID_error));   // THIS IS THE DIFFERENCE IN TEMP BETWEEN THE OUTER AND INNER SENSOR THAT WE ARE TRYING TO REDUCE TO ZERO
-    Serial.print(", " + String(Inner_Temp));
-    Serial.print(", " + String(Outer_Temp));
+    Serial.print(", Firing Delay=" + String(FAN_PID_value)); 
+    Serial.print(", Error=" + String(FAN_PID_error));   // THIS IS THE DIFFERENCE IN TEMP BETWEEN THE OUTER AND INNER SENSOR THAT WE ARE TRYING TO REDUCE TO ZERO
+    Serial.print(", Inner=" + String(Inner_Temp));
+    Serial.print(", Outer=" + String(Outer_Temp));
     Serial.println();
 
     
@@ -114,7 +133,8 @@ void loop()
     if(FAN_PID_value > FAN_maximum_firing_delay)      
       FAN_PID_value = FAN_maximum_firing_delay;    
     FAN_previous_error = FAN_PID_error; //Remember to store the previous error.
-//end new FAN PID code    
+    TempRequestSent = false;  // THIS IS REQUIRED
+    //end new FAN PID code    
   }
 
   //If the zero cross interruption was detected we create the 100us firing pulse
