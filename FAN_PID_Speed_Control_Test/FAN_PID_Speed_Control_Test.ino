@@ -18,7 +18,11 @@ const int MeasureTemp = 0xE3;
 int X0, X1, temp;
 double X, X_out;
 
+<<<<<<< HEAD
 bool TempRequestSent = false; //?? THIS IS NEW
+=======
+bool TempRequestSent = false; ?? THIS IS NEW
+>>>>>>> 089bcf793f1ea3cf135019e173268e74b63980d7
 
 int last_CH1_state = 0;
 bool zero_cross_detected = false;
@@ -56,8 +60,13 @@ void setup() {
   pinMode (FAN_firing_pin, OUTPUT);
   pinMode (zero_cross, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(zero_cross), zero_crossing, CHANGE);
+<<<<<<< HEAD
   Wire.begin(18, 19, 50000);  //Inner sensor
   Wire1.begin(16, 17, 50000);  //Outer sensor
+=======
+  Wire.begin(16, 18, 50000);  //Inner sensor
+  Wire1.begin(17, 19, 50000);  //Outer sensor
+>>>>>>> 089bcf793f1ea3cf135019e173268e74b63980d7
 }
 
 void loop()
