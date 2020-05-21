@@ -10,7 +10,7 @@ extern TwoWire Wire1; //// THIS IS NEW
  */
 
 //Inputs and outputs
-gpio_num_t FAN_firing_pin = GPIO_NUM_33; // THIS IS FOR THE FAN TRIAC AS PER PCB LAYOUT
+gpio_num_t FAN_firing_pin = GPIO_NUM_32; // THIS IS FOR THE FAN TRIAC AS PER PCB LAYOUT
 gpio_num_t zero_cross = GPIO_NUM_35; // THIS IS FOR THE ZERO CROSSING DETECTION AS PER PCB LAYOUT
 
 const int ADDR = 0x40;
@@ -46,9 +46,14 @@ double Outer_Temp, Inner_Temp;  // These hold the values of the two temp sensors
 //Zero Crossing Interrupt Function
 void IRAM_ATTR zero_crossing()
 {
-  delayMicroseconds(10);
-  if (gpio_get_level(zero_cross))
-     zero_cross_detected = true;
+  //If the last state was 0, then we have a state change...
+  if (last_CH1_state == 0)
+    zero_cross_detected = true; //We have detected a state change! We need both falling and rising edges
+  //If pin 8 is LOW and the last state was HIGH then we have a state change
+  else if (last_CH1_state == 1) {
+    zero_cross_detected = true;    //We have detected a state change!  We need both falling and rising edges.
+    last_CH1_state = 0;            //Store the current state into the last state for the next loop
+  }
 }
 
 void setup() {
@@ -104,7 +109,7 @@ void loop()
     X = (175.72 * X_out) / 65536;
     Outer_Temp = X - 46.85;
 
-    FAN_PID_error = Outer_Temp - Inner_Temp;      //Calculate the pid ERROR as the difference between ths center and edge of oven
+    FAN_PID_error = Outer_Temp - Inner_Temp;        //Calculate the pid ERROR as the difference between ths center and edge of oven
 
     // Print the firing delay and the temps of the five locations so we can graph them
     Serial.print(", Firing Delay=" + String(FAN_PID_value)); 
@@ -119,8 +124,7 @@ void loop()
     FAN_PID_p = FAN_kp * FAN_PID_error;                         //Calculate the P value
     FAN_PID_i = FAN_PID_i + (FAN_ki * FAN_PID_error);               //Calculate the I value
     timePrev = Time;                    // the previous time is stored before the actual time read
-    Time = millis();                    // actmmtmakwakwa97
-    mual time read
+    Time = millis();                    // actual time read
     elapsedTime = (Time - timePrev) / 1000;   
     FAN_PID_d = FAN_kd*((FAN_PID_error - FAN_previous_error)/elapsedTime); //Calculate the D value
     FAN_PID_value = FAN_PID_p + FAN_PID_i + FAN_PID_d; //Calculate total PID value
