@@ -18,11 +18,7 @@ const int MeasureTemp = 0xE3;
 int X0, X1, temp;
 double X, X_out;
 
-<<<<<<< HEAD
 bool TempRequestSent = false; //?? THIS IS NEW
-=======
-bool TempRequestSent = false; ?? THIS IS NEW
->>>>>>> 089bcf793f1ea3cf135019e173268e74b63980d7
 
 int last_CH1_state = 0;
 bool zero_cross_detected = false;
@@ -60,13 +56,8 @@ void setup() {
   pinMode (FAN_firing_pin, OUTPUT);
   pinMode (zero_cross, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(zero_cross), zero_crossing, CHANGE);
-<<<<<<< HEAD
   Wire.begin(18, 19, 50000);  //Inner sensor
   Wire1.begin(16, 17, 50000);  //Outer sensor
-=======
-  Wire.begin(16, 18, 50000);  //Inner sensor
-  Wire1.begin(17, 19, 50000);  //Outer sensor
->>>>>>> 089bcf793f1ea3cf135019e173268e74b63980d7
 }
 
 void loop()
@@ -113,7 +104,7 @@ void loop()
     X = (175.72 * X_out) / 65536;
     Outer_Temp = X - 46.85;
 
-    FAN_PID_error = Outer_Temp - Inner_Temp;        //Calculate the pid ERROR as the difference between ths center and edge of oven
+    FAN_PID_error = Outer_Temp - Inner_Temp;      //Calculate the pid ERROR as the difference between ths center and edge of oven
 
     // Print the firing delay and the temps of the five locations so we can graph them
     Serial.print(", Firing Delay=" + String(FAN_PID_value)); 
@@ -128,7 +119,8 @@ void loop()
     FAN_PID_p = FAN_kp * FAN_PID_error;                         //Calculate the P value
     FAN_PID_i = FAN_PID_i + (FAN_ki * FAN_PID_error);               //Calculate the I value
     timePrev = Time;                    // the previous time is stored before the actual time read
-    Time = millis();                    // actual time read
+    Time = millis();                    // actmmtmakwakwa97
+    mual time read
     elapsedTime = (Time - timePrev) / 1000;   
     FAN_PID_d = FAN_kd*((FAN_PID_error - FAN_previous_error)/elapsedTime); //Calculate the D value
     FAN_PID_value = FAN_PID_p + FAN_PID_i + FAN_PID_d; //Calculate total PID value
