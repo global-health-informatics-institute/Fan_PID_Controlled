@@ -29,7 +29,7 @@ double X,X_out;
 
 LiquidCrystal_I2C lcd(0x27,20,4);  //sometimes the adress is not 0x27. Change to 0x3f if it dosn't work.
 
-//Variables
+//Variables ////
 int last_CH1_state = 0;
 bool zero_cross_detected = false;
 const int maximum_firing_delay = 9000;
