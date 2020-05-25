@@ -8,6 +8,13 @@ extern TwoWire Wire1; //// THIS IS NEW
  * We believe this is true because the fan is pushing all the warm air to the outside when running at full speed.
  * If we slow down the fan we believe that we will even out the temperature.
  * The PID will adjust the firing delay on the fan so that the error between the two temps will be zero.
+ * 
+ * We know that it we keep power on the input to the MOC3020 then it runs well.
+ * We will create are range of power control that will be divided into 15 power levels.
+ * We will turn the fan ON and OFF with varying duty cycles between 44% and 100% every half second.
+ * Since we want to turn the power on and off at ZERO CROSSING, so as to not risk damaging the triac.
+ * We will have the following combination
+ * Full speed  = 25 on 0 off, then proceed down ... 24/1, 23/2, ... , 12/13, 11/14 << Here we are at about 44% power (11/25 = 44)
  */
 
 //Inputs and outputs
