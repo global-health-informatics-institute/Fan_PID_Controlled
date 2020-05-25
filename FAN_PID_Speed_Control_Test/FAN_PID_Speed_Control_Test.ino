@@ -10,15 +10,15 @@ extern TwoWire Wire1; //// THIS IS NEW
  */
 
 //Inputs and outputs
-int FAN_firing_pin = 32; // THIS IS FOR THE FAN TRIAC AS PER PCB LAYOUT
-int zero_cross = 35; // THIS IS FOR THE ZERO CROSSING DETECTION AS PER PCB LAYOUT
+gpio_num_t FAN_firing_pin = GPIO_NUM_32; // THIS IS FOR THE FAN TRIAC AS PER PCB LAYOUT
+gpio_num_t zero_cross = GPIO_NUM_35; // THIS IS FOR THE ZERO CROSSING DETECTION AS PER PCB LAYOUT
 
 const int ADDR = 0x40;
 const int MeasureTemp = 0xE3;
 int X0, X1, temp;
 double X, X_out;
 
-bool TempRequestSent = false; ?? THIS IS NEW
+bool TempRequestSent = false; //?? THIS IS NEW
 
 int last_CH1_state = 0;
 bool zero_cross_detected = false;
@@ -40,7 +40,7 @@ int FAN_maximum_firing_delay = 7000; //TESTING THIS VALUE
 int FAN_kp = 500;   int FAN_ki = 1;     int FAN_kd = 1000;
 int FAN_PID_p = 0;   int FAN_PID_i = 0;  int FAN_PID_d = 0;
 
-//OVEN Temp values
+//OVEN Temp values'
 double Outer_Temp, Inner_Temp;  // These hold the values of the two temp sensors we will use for PID control.
 
 //Zero Crossing Interrupt Function
@@ -61,8 +61,8 @@ void setup() {
   pinMode (FAN_firing_pin, OUTPUT);
   pinMode (zero_cross, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(zero_cross), zero_crossing, CHANGE);
-  Wire.begin(16, 18, 50000);  //Inner sensor
-  Wire1.begin(17, 19, 50000);  //Outer sensor
+  Wire.begin(18, 19, 50000);  //Inner sensor
+  Wire1.begin(16, 17, 50000);  //Outer sensor
 }
 
 void loop()
